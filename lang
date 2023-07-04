@@ -1,0 +1,296 @@
+QQ := Rationals();
+
+function info(p)
+ m := 1;
+ while #FindCurves(p, m, QQ) ge 1 do
+	print [m, #FindCurves(p,m,QQ)];
+	if #FindCurves(p,m,QQ) eq 1 then 
+		print "Irreducible: ",IsIrreducible(FindCurves(p,m,QQ)[1]);
+	end if;
+	m := m+1;
+ end while;
+ return [m,0];
+end function;
+
+function FC(p, m)
+ return FindCurves(p, m, QQ);
+end function;
+
+function P(arr)
+ ans := [[arr[2*i-1],arr[2*i]] : i in [1..(#arr/2)]];
+ return Polytope(ans);
+end function;
+
+function PP(arr)
+ min := [0,0];
+ for i in [1..(#arr/2)] do
+	for k in [1..2] do
+		if arr[2*i - (k mod 2)] le -1 and arr[2*i - (k mod 2)] le min[k] - 1 then
+			min[k] := arr[2*i - (k mod 2)];
+		end if;
+	end for;
+ end for;
+ ans := [[arr[2*i-1] - min[1], arr[2*i] - min[2]] : i in [1..(#arr/2)]];
+ return Polytope(ans);
+end function;
+
+function show(p)
+ m := #BoundaryPoints(p);
+ k := #FC(p, m);
+ if k eq 1 then
+	print [Volume(p), m, k, Width(p)];
+	return IsIrreducible(FC(p,m)[1]);
+ else
+ 	return [Volume(p), m, #FC(p, m), Width(p)];
+ end if;
+end function;
+
+function familyTry(s,m)
+	area := m^2-m+3;
+	start := 1 + (area - (area mod s))/s;
+	ends := (m^2 - (m^2 mod (m-3)))/(m-3);
+	for y in [(start)..(ends)] do
+		p := P([0,0,m-3,0,s,1,s*y-area,y]);
+		print p;
+		show(p);
+	end for;
+	return -1;
+end function;
+
+function familyTest(s, m)
+	area := m^2-m+3;
+	start := 1 + (area - (area mod s))/s;
+	ends := (m^2 - (m^2 mod (m-3)))/(m-3);
+	for y in [(start)..(ends)] do
+		p := P([0,0,m-3,0,s,1,s*y-area,y]);
+		if #FC(p, m) eq 1 and IsIrreducible(FC(p,m)[1]) then
+			print p;
+			show(p);
+		end if;
+	end for;
+	return -1;
+end function;
+
+function smallBruteHelp(a, min, max)
+	for c,d,x,y in [min..max] do
+		arr := [0,0,a,0,c,d,x,y];
+		p := PP(arr);
+		m := #BoundaryPoints(p);
+		if Volume(p) eq m^2 then
+			if #FC(p, m) eq 1 and Width(p) ge m+1 and IsIrreducible(FC(p,m)[1]) then
+				print p;
+				print arr;
+				show(p);
+				return smallBruteHelp(a+1, min, max);
+			end if;
+		end if;
+	end for;
+	return -1;
+end function;	
+
+function smallBrute(min, max)
+	return smallBruteHelp(1, min, max);
+end function;
+
+function EtTu(a, min, max)
+	for c,d in [0..30] do
+		for x,y in [min..max] do
+			arr := [0,0,a,0,c,d,x,y];
+			p := PP(arr);
+			m := #BoundaryPoints(p);
+			if Volume(p) eq m^2 then
+				if #FC(p, m) eq 1 and IsIrreducible(FC(p,m)[1]) then
+					print p;
+					print arr;
+					show(p);
+				end if;
+			end if;
+		end for;
+	end for;
+	return -1;
+end function;	
+
+function ET(a, minc,maxc,minx,maxx,miny,maxy)
+	for c in [minc..maxc] do
+		for d in [minc..maxc] do
+			for x in [minx..maxx] do
+				for y in [miny..maxy] do
+					arr := [0,0,a,0,c,d,x,y];
+					p := PP(arr);
+					m := #BoundaryPoints(p);
+					if Volume(p) eq m^2 then
+						if #FC(p, m) eq 1 and IsIrreducible(FC(p,m)[1]) then
+							print p;
+							print arr;
+							show(p);
+						end if;
+					end if; 
+				end for;
+			end for;
+		end for;
+	end for;
+	return -1;
+end function;	
+
+function B4(min, max)
+	for c,d in [0..40] do
+		for x in [min..max] do
+			arr := [0,0,4,0,c,d,x,36];
+			p := PP(arr);
+			m := #BoundaryPoints(p);
+			if Volume(p) eq m^2 then
+				if #FC(p, m) eq 1 and IsIrreducible(FC(p,m)[1]) then
+					print p;
+					print arr;
+					show(p);
+				end if;
+			end if;
+		end for;
+	end for;
+	return -1;
+end function;	
+
+function BRUTE(min, max)
+	for a in [3..20] do
+		for c,d,x,y in [min..max] do
+			arr := [0,0,a,0,c,d,x,y];
+			p := PP(arr);
+			m := #BoundaryPoints(p);
+			if Volume(p) eq m^2 then
+				if #FC(p, m) eq 1 and Width(p) ge m+1 and IsIrreducible(FC(p,m)[1]) then
+					print p;
+					print arr;
+					show(p);
+				end if;
+			end if;
+		end for;
+	end for;
+	return -1;
+end function;	
+
+
+function brute40(y,min, max)
+	for i in [min..max] do
+		for j in [min..max] do
+			p := PP([0,0,4,0,i,j,0,y]);
+			m := #BoundaryPoints(p);
+			if Volume(p) eq m^2 then
+				if #FC(p, m) eq 1 then
+					print p;
+					show(p);
+				end if;
+			end if;
+		end for;
+	end for;
+	return -1;
+end function;	
+
+function test1(m, a)
+ p := P([0,0,m-3,0,a,1,a*m-(m^2-m+3),m]);
+ print p;
+ return show(p);
+end function;
+
+
+function kpc(arr)
+	for i in [1..#arr] do
+		p := PP(arr[i]);
+		print p;
+		print arr[i];
+		print [Volume(p), #BoundaryPoints(p), #FC(p, #BoundaryPoints(p)), Width(p),  #MultAdjSys(p)];
+		print MultAdjSys(p);
+		//print PolsAdjSys(p);
+	end for;
+return -1;
+end function;
+
+function new(a)
+	for Y in [0..(3*a)] do
+		for x1,x2 in [0..a] do
+			for y1 in [1..(3*a)] do
+				for y2 in [(1-3*a)..(3*a)] do
+					for y in [(-3*a)..(3*a)] do
+						if y1-Min(y,y2) ge a then
+							p := PP([0,Y,x2,y2,a,y,x1,y1]);
+							m := #BoundaryPoints(p);
+							if #Vertices(p) eq 4 and Volume(p) eq m^2 and #FC(p,m) eq 1 and IsIrreducible(FC(p,m)[1]) then
+								print p;
+								print [0,0,x2,y2,a,0,x1,y1];
+								show(p);
+								MultAdjSys(p);
+							end if; 
+						end if;
+					end for;
+				 end for;
+			 end for;
+		end for;
+	end for;
+return -1;
+end function;	
+
+function hope(x)
+	for Y in [1..(5*x)] do
+		for y in [1..(5*x)] do
+			for k in [1..100]  do
+				for a in [1..100] do
+					for b in [1..100] do
+						p := PP([0,0,-b,b*Y,x+a*(y*k+1),a*y,x,0]);
+						m := #BoundaryPoints(p);
+						if #Vertices(p) eq 4 and Volume(p) eq m^2 and Width(p) ge m then
+							print p;
+							print [0,0,-b,b*Y,x+a*(y*k+1),a*y,x,0]; 
+							show(p);
+							//MultAdjSys(p);
+						end if;
+					end for;
+				end for;
+			end for;
+		end for;
+	end for;
+return -1;
+end function;
+
+function hope2()
+	for y in [1..100] do
+		for k in [1..Max(y,20)] do
+			p := PP([0,0,1,0,k*y+2,y,-1,k*y+y+3]);
+			m := #BoundaryPoints(p);
+			if #Vertices(p) eq 4 and Volume(p) eq m^2 then
+                 print p;
+				 print [0,0,1,0,k*y+2,y,-1,k*y+y+3];
+			end if;
+		end for;
+	end for;
+return -1;
+end function;
+
+//function duval1(x,a,b)
+//for Y in [1..(5*x)] do
+//        for y in [1..(5*x)] do
+//            for k in [1..100]  do
+//				p := PP([0,0,-b,b*Y,a*(x+y*k+1),a*y,x,0]);
+//				m := #BoundaryPoints(p);
+//				if #Vertices(p) eq 4 and Volume(p) eq m^2 and Width(p) ge m then
+//					print p;
+//					print [0,0,-1,Y,x+y*k+1,y,x,0];
+//					show(p);
+//					//MultAdjSys(p);
+//				end if;
+//            end for;
+//        end for;
+//    end for;
+//return -1;
+//end function;
+
+function NP(arr, i)
+	p := Polytope(arr);
+	show(p);
+	if #MultAdjSys(p) eq 1 then
+		print("EUREKAAA");
+		return 0;
+	end if;
+	f := PolsAdjSys(p)[i];
+	Poly := NewtonPolygon(f);
+return OuterVertices(Poly);
+end function;
+
