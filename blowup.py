@@ -77,7 +77,8 @@ def find(cone):
     
 # Creates subdivision of a cone to resolve the singularity
 # Also takes input an R fan to test for collisions ?? maybe
-def subdivision(cone):
+# Last argument: in_R used to tell if it is in R or not
+def subdivision(cone, arr):
     start = cone[0]; end = cone[1]
     print("")
     print("Between {},{}".format(start,end)) # Prints "Between"
@@ -85,7 +86,13 @@ def subdivision(cone):
     ans = [start] # ans list starts with u (first cone vertex)
     while (find(cone)[0] != end[0] or find(cone)[1] != end[1]):
         fc = find(cone)
-        ans.append(fc)
+
+        in_R = 0
+        for k in arr:
+            if fc[0] == k[0] and fc[1] == k[1]:
+                in_R = 1
+
+        ans.append([int(fc[0]),int(fc[1]),in_R])
         cone = [fc,end]
     ans.append(end) # ans list starts with v (second cone vertex)
 
@@ -99,11 +106,11 @@ def subdivision(cone):
         if curr[0] != 0:
             self_intersection = (int)((prev[0]+nextt[0])/curr[0] )
             print("{},{}".format(curr,self_intersection))
-            ans[i] = [int(curr[0]), int(curr[1]), self_intersection]
+            ans[i] = [int(curr[0]), int(curr[1]), self_intersection, curr[2]]
         else:
             self_intersection = (int)((prev[1]+nextt[1])/curr[1])
             print("{},{}".format(curr,self_intersection))
-            ans[i] = [int(curr[0]), int(curr[1]), self_intersection]
+            ans[i] = [int(curr[0]), int(curr[1]), self_intersection, curr[2]]
         i += 1
     print("") #Empty line
     
@@ -176,11 +183,45 @@ def fanc(polygon, str):
         sign = 1
         if dot < 0:
             sign = -1
-        ans = [sign*v[1], -sign*v[0]]
+
+        ans = [int(sign*v[1]), int(-sign*v[0])]
         vectors.append(ans)
         print(ans)
         s = "({},{})".format(ans[0],ans[1])
-        plt.arrow(0,0,ans[0],ans[1],width=0.05,head_width=0.2,color = str)
+#IF WANT TO PLOT
+        # plt.arrow(0,0,ans[0],ans[1],width=0.05,head_width=0.2,color = str) 
+        i += 1
+    return vectors
+
+### Creates the normal fan of a polygon
+### NOTE: ORDER OF VERTICES MATTERS
+### Take array of R as input too
+def fanc_with_arr(polygon, str, arr):
+    i = 0; size = len(polygon)
+    vectors = []
+    print("Fan:")
+    while i < size:
+        u = polygon[(i-1)%size]; v = polygon[i]; w = polygon[(i+1)%size]
+        a = w[0]-v[0]; b = w[1]-v[1]; d = math.gcd(a,b)
+        x = u[0]-v[0]; y = u[1]-v[1]
+        v = [a/d, b/d]
+
+        dot = x*v[1] - y*v[0] 
+        sign = 1
+        if dot < 0:
+            sign = -1
+        temp = [int(sign*v[1]), int(-sign*v[0])]
+
+        in_R = 0
+        if temp in arr:
+            in_R = 1
+        ans = [temp[0], temp[1], in_R]
+
+        vectors.append(ans)
+        print(ans)
+        s = "({},{})".format(ans[0],ans[1])
+#IF WANT TO PLOT
+        # plt.arrow(0,0,ans[0],ans[1],width=0.05,head_width=0.2,color = str) 
         i += 1
     return vectors
 
@@ -189,16 +230,16 @@ def fanc(polygon, str):
 def fan(polygon):
     return fanc(polygon, 'black')
 
-def fan_split(polygon):
-    vectors = fan(polygon)
+def fan_split(polygon, R_arr):
+    vectors = fanc_with_arr(polygon, 'black', R_arr)
     i = 0; size = len(vectors)
     list = []
     while i < size:
         v = vectors[i]; w = vectors[(i+1)%size]
-        list.append([int(v[0]),int(v[1])])
+        list.append([int(v[0]),int(v[1]), v[2]])
         print("")
-        print("Between {},{}".format(v, w))
-        arr = subdivision([v,w])
+        # print("Between {},{}".format(v, w))
+        arr = subdivision([v,w], R_arr)
         # arr.append("Start") #marks where each resolution starts
         for elem in arr:
             list.append(elem)
@@ -235,20 +276,26 @@ def fan_split(polygon):
 # print(find([[-7,2],[12,-5]]))
 
 # NOTE: ORDER OF VERTICES MATTERS!
-def draw(poly):
+def draw(poly, R_arr):
     tt = turtle.Turtle()
     drawing_area = turtle.Screen()
     tt.screen.screensize(2000,1500)
-    list = fan_split(poly)
+    list = fan_split(poly, R_arr)
     n = len(list)
     for a in list:
-        if len(a) == 2:
+        if len(a) == 3:
             tt.color('black')
             tt.width(4)
             tt.backward(20)
             tt.forward(20)
-            tt.forward(100)
-        if len(a) == 3:
+    #Create dot in center
+            if a[2] == 1:
+                tt.forward(50)
+                tt.dot(10)
+                tt.forward(50)
+            else:
+                tt.forward(100)    
+        if len(a) == 4:
             tt.width(1)
             tt.color('blue')
             tt.backward(20)
@@ -256,6 +303,8 @@ def draw(poly):
             # Use this for continuous lines
             tt.forward(20)
             tt.forward(50)
+            if a[3] == 1:
+                tt.dot(10)
             tt.write(a[2], font=("Arial", 20, "bold"), align = "right")
             tt.forward(50)
 
@@ -272,23 +321,101 @@ def draw(poly):
         tt.left(360/n)
     turtle.done()
 
+def full_auto(poly,r_poly):
+    r_fan = fanc(r_poly,'blue')
+    draw(poly,r_fan)
+
+################
+
+## (q) example 7
+
+# poly = [[3,0],[0,3],[46,16],[6,0]]
+# r1 = [[0,0],[3,1]]
+# r2 = [[1, 0], [11, 4], [7, 3], [0, 1]]
+
+# full_auto(poly,r2)
+
+################
+
+# # (q) example 4
+
+# Polygon([Point(0,0),Point(-1,1),Point(37,28),Point(2,0)])
+# poly = [[0,0],[-1,1],[37,28],[2,0]]
+
+# r1 = [[0,0],[1,1]]
+# r2 = [[7,5],[2,1],[0,0]]
+# # r1_fan = fanc(r1_poly,'blue')
+# full_auto(poly, r1)
+
+# print("Newton Polygon of R2")
+
+# Polygon([Point(7,5),Point(2,1),Point(0,0)])
+# r2_poly = [[7,5],[2,1],[0,0]]
+# r2_fan = fanc(r2_poly,'blue')
+# draw(poly, r2_fan)
+
+
+################
+
+# # Special (13,14) example
+
+# Polygon([Point(0,0),Point(4,0),Point(5,1),Point(15,36)])
 # poly = [ [0 , 0] , [4 , 0] , [5 , 1] , [15 , 36] ]
-# draw(poly)
 
-# cone = [[27,-38],[1,1]]
-# subdivision(cone)
+# print("Newton Polygon of R1")
 
-# polygon = [[0,0],[2,0],[37,28],[-1,1]]
-# fan(polygon)
-# fan_split(polygon)
+# np1 = [[0,0],[1,0],[3,7],[2,5]]
+# np1_fan = fanc(np1,'blue')
+# print('')
 
-poly = [[0,0],[2,0],[37,28],[-1,1]]
-draw(poly)
-# fan(poly)
+# print("Main fan")
+# # fan_split(poly,R_fan)
+# draw(poly, np1_fan)
 
-# fan(poly)
-# list = fan_split(poly)
-# print(list)
+# print("Newton Polygon of R2")
+
+# np2 = [[1,0],[3,0],[4,1],[5,4],[11,25],[1,1]]
+# np2_fan = fanc(np2,'blue')
+# print('')
+
+# print("Main fan")
+# # fan_split(poly,R_fan)
+# draw(poly, np2_fan)
+
+# fanc(np2,'blue')
+
+################
+
+# # Random Example
+
+# poly = [[0,0],[5,0],[11,14],[11,15]]
+
+# R1_poly = [[0,0],[1,1]]
+# print("R fan:")
+# R1_fan = fanc(R1_poly,'black')
+# print('')
+
+# print("Main fan")
+# # fan_split(poly,R_fan)
+# draw(poly, R1_fan)
+
+# R2_poly = [[0,0],[2,0],[5,7],[2,3]]
+# print("R fan:")
+# R2_fan = fanc(R2_poly,'black')
+# print('')
+
+# print("Main fan")
+# # fan_split(poly,R_fan)
+# draw(poly, R2_fan)
 
 
-# turtle.forward(15)
+################
+
+# # One curve covers all -k sides
+
+# poly = [ [10 , 0] , [0 , 20 ], [27 , 5] , [12 , 0] ]
+# r1 = [[0,0],[1,0]]
+# r2 = [ [8, 0], [9, 0], [21, 4], [20, 5], [2, 15], [0, 16] ]
+
+# # full_auto(poly,r1)
+# full_auto(poly,r2)
