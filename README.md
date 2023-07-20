@@ -1,5 +1,7 @@
 # Toric-Varieties
 
+Here's a rough description of the content of the files.
+
 # blowup
 Contains the code that takes the Newton Polygon and constructs the resolution, with the intersection numbers of all boundary divisors.
 
