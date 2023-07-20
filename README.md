@@ -8,7 +8,7 @@ Used for the interface here: https://www.geogebra.org/python/index.html
 
 Draws the vectors corresponding to the normal fan and its resolution.
 
- # smooth_surfaces
+ # smoothSurfaces
 Constructs a smooth (toric) surface with the given intersection numbers. It does that by making sure it ends up at either the projective plane or a Hirzebruch surface after suitable contractions.
 
  Further, it also takes the surface as a list of self-intersection number, constructs the 2-parameterr family of Newton Polygons, and check if any of these are 'good', i.e., volume is the lattice perimeter squared.
