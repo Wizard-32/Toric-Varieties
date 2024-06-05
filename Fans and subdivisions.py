@@ -76,6 +76,7 @@ def find(cone):
 
 
 # Assumes they are not opposite?
+# also prints endpoints
 def subdivision(cone):
     start = cone[0]; end = cone[1]
     print("")
@@ -143,14 +144,116 @@ def fanc(polygon, str):
 
 def fan(polygon):
     return fanc(polygon, 'black')
+    
+#Subdivides the whole fan
+def sub(fan):
+    i = 0; n = len(fan)
+    arr = []
+    while i < n:
+        # Vector(fan[i % n][0],fan[i % n][1])
+        sub_array = subdivision([fan[i % n],fan[(i+1) % n]])
+        for elem in sub_array[:-1]:
+            arr.append(elem)
+        i += 1
+    return arr
+
+fan = [[1,0],[-7,19],[-1,0],[0,-1]]
+print(sub(fan))
   
+#Subdivides the whole fan
 def psub(fan):
     i = 0; n = len(fan)
-    while i < n + 1:
+    while i < n:
         Vector(fan[i % n][0],fan[i % n][1])
         psubdivision([fan[i % n],fan[(i+1) % n]])
         i += 1
     
+# k = 2
+# c = 6
+# d = 10 - c
+# w = 4
+# z = 3
+# fan = [[0,1],[d,1],[w - d*z, -z],[-c,1 + k*c]]
+# psub(fan)
+
+#fan= [[0,1],[-3,-2],[3,1],[12,5]]
+#psub(fan)
+
+# fan = [[1, 0], [-134, 217], [-21, 34], [51, -83]]
+# psub(fan)
+
+# fan = [[0,1],[23,10],[-91,-40]]
+# psub(fan)
+
+# fan = [[0,1],[5,-2]]
+# psub(fan)
+
+# k=0
+# fan = [[0,1],[-3,1],[-7-3*(7*k+1),7*k+1],[3,-2]]
+# psub(fan)
+
+# fan = [[0,1],[2,-1],[-3,-4],[-1,3]]
+# psub(fan)
+
+# fan = [[0,1],[3,-2],[11,-13],[-10,1],[-3,1]]
+# psub(fan)
+
+# fan = [[0,1],[10,-7],[-11,2],[-3,1]]
+# psub(fan)
+
+# y = 6
+# fan = [[0,1],[-9,1],[-1-9*y,y]]
+# psub(fan)
+
+# # Case: s = 0, (a,b) = (0,7)
+# l = 3
+# fan = [[-9-8*l,1+8*l],[-1,1],[0,1]]
+# psub(fan)
+
+# Case: s = -1, (a,b) = (0,6)
+# l = 2
+# fan = [[-8-7*l,1+7*l],[-1,1],[0,1]]
+# psub(fan)
+
+# fan = [[1,0],[7,-15]]
+# psub(fan)
+
+# fan = [[1,0],[13,-15]]
+# psub(fan)
+    
+# x=-34; y=-39; z=41; w=47
+# fan = [[-41,47],[1,0],[47,-55]]   
+# psub(fan)
+    
+# fan = [[0,1],[217,-183]]
+# psub(fan)
+
+##########
+# P and Maximal resolution playground
+##########
+# fan = [[1,0],[-7,19]]
+# psub(fan)
+# Line(Point(1,0),Point(-7,19))
+# u1=(0,1), u2=(−1,4), u3=(−2,7), u4=(−1,3), u5=(−5,14), u6=(−4,11)
+# Vector(0,1,color = 'blue')
+# Vector(1,0)
+# Vector(0,1, color = 'blue')
+# Vector(-1,4,color = 'blue')
+# Vector(-2,7,color = 'blue')
+# Vector(-1,3,color = 'blue')
+# Vector(-5,14,color = 'blue')
+# Vector(-4,11,color = 'blue')
+# Vector(-7,19)
+
+# Line(Point(1,0),Point(-1,4))
+# Line(Point(-1,4),Point(-7,19))
+
+# Vector(19,7)
+# Vector(1,1)
+# Vector(2,1)
+# Vector(5,2)
+# Vector(8,3)
+
 # Draw vectors  
 def draw_vec(vectors,str):
     for vec in vectors:
@@ -233,7 +336,7 @@ def fan_from_surface(vec, list_of_black):
             Vector(recursive_list[i][0],recursive_list[i][1])
             print(recursive_list[i])
     return recursive_list[:n]
-        
+
 
 # vec = [[0,1],[1,0],[4,-3],[-2,1]]
 # psub(vec)
@@ -255,10 +358,10 @@ def fan_from_surface(vec, list_of_black):
 
 ########
 
-cone = [[0,1],[-1,-2]]
-Vector(0,1)
-Vector(-1,-2)
-psubdivision(cone)
+# cone = [[0,1],[-1,-2]]
+# Vector(0,1)
+# Vector(-1,-2)
+# psubdivision(cone)
 
 #### draw_from_coefficients 
 # vec = [1, 2, 3, 1, 2, 2, 3, 2, 1, 3, 2, 2]
@@ -338,8 +441,8 @@ psubdivision(cone)
 # # print("Newton Polygon of R1")
 
 # Polygon([Point(0,0),Point(1,0),Point(3,7),Point(2,5)])
-# # np1 = [[0,0],[1,0],[3,7],[2,5]]
-# # fanc(np1,'blue')
+# np1 = [[0,0],[1,0],[3,7],[2,5]]
+# fanc(np1,'blue')
 
 # print("Newton Polygon of R2")
 
@@ -562,5 +665,9 @@ psubdivision(cone)
 
 # Polygon([Point(0,0),Point(4,0),Point(6,5),Point(3,4)])
 # p = P([0,0,4,0,6,5,3,4])
+# fan(p)
+# fan_split(p)
+
+# p = P([0,0,39,18,45,21,0,16])
 # fan(p)
 # fan_split(p)
